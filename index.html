@@ -289,7 +289,7 @@
 </div>
 
 <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJwraAYtfT_iiqARuq-BGTNpH7QSyhTUnrE3vdsuGDuB1_ICzSytzSITarNzw7qjl-/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyK8F7nn31UlL6XdRB4r3nxOIgtPrDro-MSdPZqtIMo_IbWKpj81zVDjuU1zd6MyMF5/exec";
 
     let isRunning = false;
     let isTimerActive = false;
@@ -379,29 +379,24 @@
         localStorage.setItem('remMins', m);
     }
 
-    function triggerTimerEndAlerts() {
-        if (hasAlertedThisRun) return;
-        hasAlertedThisRun = true;
+function triggerTimerEndAlerts() {
+    if (hasAlertedThisRun) return;
+    hasAlertedThisRun = true;
 
-        sendNotification("🍼 Time to Feed!", "Time to feed Garner!");
-        playChime();
+    // Keep the local alerts for when the browser is open
+    sendNotification("🍼 Time to Feed!", "Time to feed Garner!");
+    playChime();
 
-        fetch("https://ntfy.sh/Garner-Feeder-77342", {
-            method: 'POST',
-            body: 'The countdown has finished. Time to feed Garner!',
-            headers: {
-                'Title': 'Feeding Alert',
-                'Priority': 'high',
-                'Tags': 'baby_bottle'
-            }
-        }).catch(err => console.log("Ntfy push failed:", err));
+    // REMOVE the fetch("ntfy.sh") block entirely.
+    // The Apps Script Trigger (scheduled via pushTimerToCloud) 
+    // will send the Discord message automatically.
 
-        let toggle = false;
-        titleAlertInterval = setInterval(() => {
-            document.title = toggle ? "🚨 FEED BABY NOW 🚨" : "🍼 Garner Feeding Tracker";
-            toggle = !toggle;
-        }, 1000);
-    }
+    let toggle = false;
+    titleAlertInterval = setInterval(() => {
+        document.title = toggle ? "🚨 FEED BABY NOW 🚨" : "🍼 Garner Feeding Tracker";
+        toggle = !toggle;
+    }, 1000);
+}
 
     function getTimestamp() {
         const now = new Date();
