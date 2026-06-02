@@ -383,17 +383,13 @@ function triggerTimerEndAlerts() {
     if (hasAlertedThisRun) return;
     hasAlertedThisRun = true;
 
-    // Keep the local alerts for when the browser is open
+
     sendNotification("🍼 Time to Feed!", "Time to feed Garner!");
     playChime();
 
-    // REMOVE the fetch("ntfy.sh") block entirely.
-    // The Apps Script Trigger (scheduled via pushTimerToCloud) 
-    // will send the Discord message automatically.
-
     let toggle = false;
     titleAlertInterval = setInterval(() => {
-        document.title = toggle ? "🚨 FEED BABY NOW 🚨" : "🍼 Garner Feeding Tracker";
+        document.title = toggle ? "FEED BABY NOW" : "🍼 Garner Feeding Tracker";
         toggle = !toggle;
     }, 1000);
 }
