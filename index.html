@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Garner Feeding Tracker</title>
+    <style>
+        :root {
+            --bg: #121214;
+            --card: #1e1e24;
+            --primary: #bb86fc;
+            --success: #03dac6;
+            --danger: #cf6679;
+            --text-main: #e1e1e6;
+            --text-muted: #a0a0ba;
+            --pee-color: #f39c12;
+            --poop-color: #d35400;
+            --both-color: #c0392b;
+            --accent: #ffb74d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin: 10px 0 25px 0;
+            width: 100%;
+        }
+
+        h1.app-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            text-align: center;
+        }
+
+        .top-refresh-btn {
+            position: absolute;
+            right: 5px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: opacity 0.2s;
+            line-height: 1;
+        }
+
+        .top-refresh-btn:active {
+            opacity: 0.6;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 25px 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .reminder-inputs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .reminder-inputs input {
+            background: #2a2a35;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            width: 50px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .reminder-inputs label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        #reminder-display {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 10px 0;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .reminder-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .rem-btn {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .btn-rem-start { background: var(--accent); color: #121214; }
+        .btn-rem-stop { background: #3a3a4a; color: white; }
+
+        #timer-display {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin: 15px 0;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        .action-btn {
+            width: 100%;
+            border: none;
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #121214;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .btn-start { background-color: var(--success); }
+        .btn-stop { background-color: var(--danger); color: white; }
+        
+        .diaper-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .diaper-btn {
+            border: none;
+            padding: 15px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn-pee { background-color: var(--pee-color); }
+        .btn-poop { background-color: var(--poop-color); }
+        .btn-both { background-color: var(--both-color); }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 5px;
+        }
+
+        .history-item {
+            background: var(--card);
+            padding: 16px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .time-stamp {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .log-details {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #121214;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            padding: 10px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .delete-btn:active { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="top-bar">
+        <h1 class="app-title">Garner Feeding Tracker</h1>
+        <button class="top-refresh-btn" onclick="pullFromGoogleSheets()">🔄</button>
+    </div>
+
+    <!-- Feeding Card -->
+    <div class="card">
+        <div class="status-label" id="status-text">Ready to Feed</div>
+        <div id="timer-display">00:00</div>
+        <button id="main-btn" class="action-btn btn-start" onclick="toggleTimer()">START FEED</button>
+    </div>
+
+    <!-- Diaper Card -->
+    <div class="card">
+        <div class="status-label">Log Diaper Change</div>
+        <div class="diaper-grid">
+            <button class="diaper-btn btn-pee" onclick="logDiaper('Pee 💧')">PEE</button>
+            <button class="diaper-btn btn-poop" onclick="logDiaper('Poop 💩')">POOP</button>
+            <button class="diaper-btn btn-both" onclick="logDiaper('Both 💧💩')">BOTH</button>
+        </div>
+    </div>
+
+    <!-- Synced Feed Reminder Panel -->
+    <div class="card" style="border: 1px solid rgba(255, 183, 77, 0.15);">
+        <div class="status-label" style="color: var(--accent);">Next Feed Countdown</div>
+        <div id="reminder-display">00:00:00</div>
+        
+        <div class="reminder-inputs" id="reminder-input-wrapper">
+            <input type="number" id="rem-hours" value="2" min="0" max="23"> <label>h</label>
+            <input type="number" id="rem-mins" value="30" min="0" max="59"> <label>m</label>
+        </div>
+
+        <div class="reminder-controls">
+            <button id="rem-start-btn" class="rem-btn btn-rem-start" onclick="manualStartReminder()">Start Timer</button>
+            <button class="rem-btn btn-rem-stop" onclick="resetReminder()">Reset</button>
+        </div>
+    </div>
+
+    <div class="history-header">
+        <h3 style="margin:0; font-size: 1.1rem;">Recent Logs</h3>
+    </div>
+    
+    <div id="history-list"></div>
+</div>
+
+<script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJwraAYtfT_iiqARuq-BGTNpH7QSyhTUnrE3vdsuGDuB1_ICzSytzSITarNzw7qjl-/exec";
+
+    let isRunning = false;
+    let isTimerActive = false;
+    let startTime;
+    let timerInterval;
+    let notificationTimeout;
+
+    let reminderInterval;
+    let reminderEndTime;
+    let hasAlertedThisRun = false;
+    let titleAlertInterval;
+
+    function playChime() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            let osc1 = audioCtx.createOscillator();
+            let gain1 = audioCtx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            gain1.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.start();
+            osc1.stop(audioCtx.currentTime + 0.4);
+
+            setTimeout(() => {
+                let osc2 = audioCtx.createOscillator();
+                let gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start();
+                osc2.stop(audioCtx.currentTime + 0.5);
+            }, 150);
+        } catch(e) { console.log("Audio failed context block", e); }
+    }
+
+    function sendNotification(title, body) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body: body, icon: '🍼' });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+        
+        const savedHours = localStorage.getItem('remHours');
+        const savedMins = localStorage.getItem('remMins');
+        
+        document.getElementById('rem-hours').value = savedHours !== null ? savedHours : "2";
+        document.getElementById('rem-mins').value = savedMins !== null ? savedMins : "30";
+        
+        document.getElementById('rem-hours').addEventListener('change', saveDefaultInterval);
+        document.getElementById('rem-mins').addEventListener('change', saveDefaultInterval);
+
+        window.addEventListener('click', () => {
+            clearInterval(titleAlertInterval);
+            document.title = "Garner Feeding Tracker";
+        });
+
+        renderHistory();
+
+        const savedEnd = localStorage.getItem('reminderEndTime');
+        const savedPaused = localStorage.getItem('pausedRemaining');
+        if (savedEnd) {
+            reminderEndTime = parseInt(savedEnd);
+            startCountdownInterval();
+        } else if (savedPaused) {
+            setUItoPausedState();
+            updateDisplayFromMs(parseInt(savedPaused));
+        }
+
+        pullFromGoogleSheets();
+    });
+
+    function saveDefaultInterval() {
+        const h = document.getElementById('rem-hours').value;
+        const m = document.getElementById('rem-mins').value;
+        localStorage.setItem('remHours', h);
+        localStorage.setItem('remMins', m);
+    }
+
+    function triggerTimerEndAlerts() {
+        if (hasAlertedThisRun) return;
+        hasAlertedThisRun = true;
+
+        sendNotification("🍼 Time to Feed!", "Time to feed Garner!");
+        playChime();
+
+        fetch("https://ntfy.sh/Garner-Feeder-77342", {
+            method: 'POST',
+            body: 'The countdown has finished. Time to feed Garner!',
+            headers: {
+                'Title': 'Feeding Alert',
+                'Priority': 'high',
+                'Tags': 'baby_bottle'
+            }
+        }).catch(err => console.log("Ntfy push failed:", err));
+
+        let toggle = false;
+        titleAlertInterval = setInterval(() => {
+            document.title = toggle ? "🚨 FEED BABY NOW 🚨" : "🍼 Garner Feeding Tracker";
+            toggle = !toggle;
+        }, 1000);
+    }
+
+    function getTimestamp() {
+        const now = new Date();
+        return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + 
+               ' on ' + now.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+
+    function toggleTimer() {
+        const btn = document.getElementById('main-btn');
+        const status = document.getElementById('status-text');
+
+        clearInterval(titleAlertInterval);
+        document.title = "Garner Feeding Tracker";
+
+        if (!isRunning) {
+            isRunning = true;
+            startTime = Date.now();
+            btn.innerText = "FINISH FEED";
+            btn.className = "action-btn btn-stop";
+            status.innerText = "Feeding in progress...";
+            timerInterval = setInterval(updateDisplay, 1000);
+
+            notificationTimeout = setTimeout(() => {
+                sendNotification("🍼 Feeding Warning", "The feed timer has run for over 30 minutes!");
+            }, 30 * 60 * 1000);
+        } else {
+            isRunning = false;
+            clearInterval(timerInterval);
+            clearTimeout(notificationTimeout);
+            
+            const duration = document.getElementById('timer-display').innerText;
+            saveEntry({ type: 'Feed', detail: duration, timestamp: getTimestamp() });
+            sendNotification("📝 Log Saved", `Fed for ${duration}.`);
+
+            btn.innerText = "START FEED";
+            btn.className = "action-btn btn-start";
+            status.innerText = "Ready to Feed";
+            document.getElementById('timer-display').innerText = "00:00";
+
+            autoStartReminder();
+        }
+    }
+
+    function updateDisplay() {
+        const delta = Date.now() - startTime;
+        const totalSeconds = Math.floor(delta / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        document.getElementById('timer-display').innerText = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function pushTimerToCloud(endTime, pausedRemaining) {
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "syncTimer",
+                reminderEndTime: endTime,
+                pausedRemaining: pausedRemaining
+            } || "")
+        });
+    }
+
+    function autoStartReminder() {
+        const h = parseInt(document.getElementById('rem-hours').value) || 0;
+        const m = parseInt(document.getElementById('rem-mins').value) || 0;
+        localStorage.setItem('remHours', h);
+        localStorage.setItem('remMins', m);
+
+        const totalMs = ((h * 60) + m) * 60 * 1000;
+        if (totalMs <= 0) return;
+
+        reminderEndTime = Date.now() + totalMs;
+        hasAlertedThisRun = false;
+        localStorage.setItem('reminderEndTime', reminderEndTime);
+        localStorage.removeItem('pausedRemaining');
+        
+        pushTimerToCloud(reminderEndTime, "");
+        startCountdownInterval();
+    }
+
+    function manualStartReminder() {
+        const btn = document.getElementById('rem-start-btn');
+        if (btn.innerText === "Pause") {
+            clearInterval(reminderInterval);
+            const remaining = reminderEndTime - Date.now();
+            localStorage.setItem('pausedRemaining', remaining);
+            localStorage.removeItem('reminderEndTime');
+            setUItoPausedState();
+            pushTimerToCloud("", remaining);
+        } else {
+            let totalMs;
+            if (localStorage.getItem('pausedRemaining')) {
+                totalMs = parseInt(localStorage.getItem('pausedRemaining'));
+                localStorage.removeItem('pausedRemaining');
+            } else {
+                const h = parseInt(document.getElementById('rem-hours').value) || 0;
+                const m = parseInt(document.getElementById('rem-mins').value) || 0;
+                totalMs = ((h * 60) + m) * 60 * 1000;
+            }
+            if (totalMs <= 0) return;
+            reminderEndTime = Date.now() + totalMs;
+            hasAlertedThisRun = false;
+            localStorage.setItem('reminderEndTime', reminderEndTime);
+            pushTimerToCloud(reminderEndTime, "");
+            startCountdownInterval();
+        }
+    }
+
+    function startCountdownInterval() {
+        isTimerActive = true; 
+        clearInterval(reminderInterval);
+        document.getElementById('reminder-input-wrapper').style.opacity = "0.3";
+        
+        const btn = document.getElementById('rem-start-btn');
+        btn.innerText = "Pause";
+        btn.className = "rem-btn btn-rem-stop";
+
+        reminderInterval = setInterval(() => {
+            const now = Date.now();
+            const remaining = Number(reminderEndTime) - now;
+
+            if (remaining <= 0) {
+                clearInterval(reminderInterval);
+                document.getElementById('reminder-display').innerText = "00:00:00";
+                resetReminderUI();
+                
+                if (isTimerActive && !hasAlertedThisRun) {
+                    triggerTimerEndAlerts();
+                }
+                isTimerActive = false;
+                return;
+            }
+
+            updateDisplayFromMs(remaining);
+        }, 1000);
+    }
+
+    function resetReminder() {
+        isTimerActive = false; 
+        clearInterval(reminderInterval);
+        document.title = "Garner Feeding Tracker";
+        localStorage.removeItem('reminderEndTime');
+        localStorage.removeItem('pausedRemaining');
+        document.getElementById('reminder-display').innerText = "00:00:00";
+        resetReminderUI();
+        pushTimerToCloud("", "");
+    }
+
+    function resetReminderUI() {
+        document.getElementById('reminder-input-wrapper').style.opacity = "1";
+        const btn = document.getElementById('rem-start-btn');
+        btn.innerText = "Start Timer";
+        btn.className = "rem-btn btn-rem-start";
+        
+        const savedHours = localStorage.getItem('remHours');
+        const savedMins = localStorage.getItem('remMins');
+        document.getElementById('rem-hours').value = savedHours !== null ? savedHours : "2";
+        document.getElementById('rem-mins').value = savedMins !== null ? savedMins : "30";
+    }
+
+    function logDiaper(type) {
+        saveEntry({ type: 'Diaper', detail: type, timestamp: getTimestamp() });
+        sendNotification("👶 Diaper Logged", `Recorded: ${type}`);
+        const label = document.querySelector('.diaper-grid').previousElementSibling;
+        const originalText = label.innerText;
+        label.innerText = "Saved!";
+        setTimeout(() => label.innerText = originalText, 1500);
+    }
+
+    function saveEntry(entry) {
+        entry.id = "local-" + Date.now();
+        const history = JSON.parse(localStorage.getItem('babyTrackerHistory') || '[]');
+        history.unshift(entry);
+        localStorage.setItem('babyTrackerHistory', JSON.stringify(history.slice(0, 50)));
+        renderHistory();
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(entry)
+        }).then(() => {
+            setTimeout(pullFromGoogleSheets, 2000);
+        });
+    }
+
+    function pullFromGoogleSheets() {
+        if (!GOOGLE_SCRIPT_URL) return;
+        const refreshBtn = document.querySelector('.top-refresh-btn');
+        if(refreshBtn) refreshBtn.style.opacity = "0.4";
+
+        fetch(GOOGLE_SCRIPT_URL)
+        .then(response => response.json())
+        .then(data => {
+            if (refreshBtn) refreshBtn.style.opacity = "1";
+            if (data.history) {
+                localStorage.setItem('babyTrackerHistory', JSON.stringify(data.history));
+                renderHistory();
+            }
+            if (data.reminderEndTime && data.reminderEndTime !== "") {
+                const cloudEndTime = Number(data.reminderEndTime);
+                
+                if (cloudEndTime > Date.now()) {
+                    if (cloudEndTime !== parseInt(localStorage.getItem('reminderEndTime'))) {
+                        reminderEndTime = cloudEndTime;
+                        localStorage.setItem('reminderEndTime', cloudEndTime);
+                        localStorage.removeItem('pausedRemaining');
+                        hasAlertedThisRun = false;
+                        startCountdownInterval();
+                    }
+                } else {
+                    clearLocalTimer();
+                }
+            } else if (data.pausedRemaining && data.pausedRemaining !== "") {
+                const cloudPausedMs = Number(data.pausedRemaining);
+                
+                if (cloudPausedMs !== parseInt(localStorage.getItem('pausedRemaining'))) {
+                    clearInterval(reminderInterval);
+                    reminderEndTime = null;
+                    localStorage.removeItem('reminderEndTime');
+                    localStorage.setItem('pausedRemaining', cloudPausedMs);
+                    
+                    updateDisplayFromMs(cloudPausedMs); 
+                    setUItoPausedState();
+                }
+            } else {
+                if (localStorage.getItem('reminderEndTime') || localStorage.getItem('pausedRemaining')) {
+                    clearLocalTimer();
+                }
+            }
+        })
+        .catch(err => {
+            if (refreshBtn) refreshBtn.style.opacity = "1";
+            console.log("Sync error:", err);
+        });
+    }
+
+    function deleteEntry(id, timestamp, type, detail) {
+        let history = JSON.parse(localStorage.getItem('babyTrackerHistory') || '[]');
+        history = history.filter(item => item.id !== id);
+        localStorage.setItem('babyTrackerHistory', JSON.stringify(history));
+        renderHistory();
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "delete", timestamp: timestamp, type: type, detail: detail })
+        }).then(() => {
+            setTimeout(pullFromGoogleSheets, 2000);
+        });
+    }
+
+    function renderHistory() {
+        const history = JSON.parse(localStorage.getItem('babyTrackerHistory') || '[]');
+        const list = document.getElementById('history-list');
+        list.innerHTML = '';
+
+        if (history.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:0.9rem;">No logs yet</div>';
+            return;
+        }
+
+        history.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+
+            let cleanDetail = item.detail;
+            
+            if (typeof cleanDetail === 'string' && cleanDetail.includes('T')) {
+                const pieces = cleanDetail.split('T');
+                if(pieces[1]) {
+                    const parts = pieces[1].split(':');
+                    cleanDetail = `${parts[1] || '00'}:${(parts[2] || '00').substring(0, 2)}`; 
+                }
+            } 
+            else if (cleanDetail !== null && !isNaN(cleanDetail) && cleanDetail.toString().includes('.')) {
+                const totalSeconds = Math.round(parseFloat(cleanDetail) * 86400);
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = totalSeconds % 60;
+                cleanDetail = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            let badgeHtml = item.type === 'Feed' ? 
+                `<span class="badge" style="background: var(--primary)">🍼 Feed</span>` : 
+                `<span class="badge" style="background: #74b9ff">👶 Diaper</span>`;
+
+            div.innerHTML = `
+                <div>
+                    <div>${badgeHtml}<span class="log-details">${cleanDetail}</span></div>
+                    <div class="time-stamp" style="margin-top: 5px;">${item.timestamp}</div>
+                </div>
+                <button class="delete-btn" onclick="deleteEntry('${item.id}', '${item.timestamp}', '${item.type}', '${item.detail}')">✕</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function updateDisplayFromMs(ms) {
+        if (ms <= 0) {
+            document.getElementById('reminder-display').innerText = "00:00:00";
+            return;
+        }
+        const totalSeconds = Math.floor(ms / 1000);
+        const hrs = Math.floor(totalSeconds / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+
+        document.getElementById('reminder-display').innerText = 
+            `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function setUItoPausedState() {
+        document.getElementById('reminder-input-wrapper').style.opacity = "0.3";
+        const btn = document.getElementById('rem-start-btn');
+        btn.innerText = "Resume";
+        btn.className = "rem-btn btn-rem-start";
+    }
+
+    function clearLocalTimer() {
+        clearInterval(reminderInterval);
+        localStorage.removeItem('reminderEndTime');
+        localStorage.removeItem('pausedRemaining');
+        document.getElementById('reminder-display').innerText = "00:00:00";
+        resetReminderUI();
+    }
+</script>
+</body>
+</html>
